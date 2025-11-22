@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMate AI - Tu Asistente Académico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .feature-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .pill {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .pill:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pill.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+
+        .message.assistant .message-content strong {
+            color: #667eea;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #667eea;
+        }
+
+        .input-wrapper button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .input-wrapper button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+
+        .welcome-message h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .example-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e0e0e0;
+        }
+
+        .example-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .example-card strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 StudyMate AI</h1>
+            <p>Tu asistente inteligente para triunfar en la universidad</p>
+        </div>
+
+        <div class="feature-pills">
+            <div class="pill" data-type="guia">📚 Guías Rápidas</div>
+            <div class="pill" data-type="resumen">📝 Resúmenes</div>
+            <div class="pill" data-type="ruta">🗺️ Rutas de Aprendizaje</div>
+            <div class="pill" data-type="ejercicio">💡 Ejercicios</div>
+            <div class="pill" data-type="tip">⚡ Tips</div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <h2>¡Hola! 👋</h2>
+                <p>Soy tu asistente académico personal. Puedo ayudarte con:</p>
+                <div class="examples">
+                    <div class="example-card" onclick="sendExample('Necesito una guía rápida sobre derivadas')">
+                        <strong>📚 Guías</strong>
+                        <p>Conceptos explicados paso a paso</p>
+                    </div>
+                    <div class="example-card" onclick="sendExample('Resume el tema de programación orientada a objetos')">
+                        <strong>📝 Resúmenes</strong>
+                        <p>Temas complejos simplificados</p>
+                    </div>
+                    <div class="example-card" onclick="sendExample('Crea una ruta de aprendizaje para Python')">
+                        <strong>🗺️ Rutas</strong>
+                        <p>Camino estructurado de estudio</p>
+                    </div>
+                    <div class="example-card" onclick="sendExample('Dame un ejercicio de álgebra lineal')">
+                        <strong>💡 Ejercicios</strong>
+                        <p>Práctica con soluciones</p>
+                    </div>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="Escribe tu pregunta o tema..." 
+                    onkeypress="if(event.key==='Enter') sendMessage()"
+                >
+                <button onclick="sendMessage()" id="sendButton">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = null;
+        let conversationHistory = [];
+
+        // Configuración del webhook de N8N
+        const WEBHOOK_URL = 'https://jdtorres.app.n8n.cloud/webhook/asistente-estudiante';
+
+        // Manejo de pills de categorías
+        document.querySelectorAll('.pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                selectedType = this.dataset.type;
+            });
+        });
+
+        function sendExample(text) {
+            document.querySelector('.welcome-message').style.display = 'none';
+            document.getElementById('userInput').value = text;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Ocultar mensaje de bienvenida
+            document.querySelector('.welcome-message').style.display = 'none';
+
+            // Mostrar mensaje del usuario
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Deshabilitar botón mientras procesa
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            
+            // Mostrar indicador de escritura
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // Llamada al webhook de N8N
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mensaje: message,
+                        tipoConsulta: selectedType,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+                
+                // Ocultar indicador de escritura
+                typingIndicator.style.display = 'none';
+                
+                // Mostrar respuesta del asistente
+                addMessage(data.respuesta || data.message || 'Respuesta recibida', 'assistant');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                typingIndicator.style.display = 'none';
+                
+                // Mensaje de demostración si no hay conexión
+                addMessage(
+                    generateDemoResponse(message, selectedType),
+                    'assistant'
+                );
+            }
+            
+            sendButton.disabled = false;
+            selectedType = null;
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        }
+
+        function addMessage(text, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = formatMessage(text);
+            
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+
+        function formatMessage(text) {
+            // Convertir markdown básico a HTML
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\n/g, '<br>');
+            text = text.replace(/• /g, '• ');
+            return text;
+        }
+
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Función de demostración (se usa cuando no hay conexión con N8N)
+        function generateDemoResponse(message, type) {
+            const responses = {
+                guia: `<strong>📚 Guía Rápida</strong><br><br>
+                       <strong>Conceptos clave:</strong><br>
+                       • Fundamento 1: Explicación clara y concisa<br>
+                       • Fundamento 2: Aplicación práctica<br>
+                       • Fundamento 3: Casos de uso<br><br>
+                       <strong>Pasos a seguir:</strong><br>
+                       1. Comprende la teoría base<br>
+                       2. Practica con ejemplos<br>
+                       3. Aplica en proyectos reales`,
+                       
+                resumen: `<strong>📝 Resumen del Tema</strong><br><br>
+                         Este tema se centra en ${message}. Los puntos clave incluyen conceptos fundamentales, 
+                         aplicaciones prácticas y mejores prácticas. Es importante dominar estos aspectos 
+                         para avanzar en tu carrera académica.`,
+                         
+                ruta: `<strong>🗺️ Ruta de Aprendizaje</strong><br><br>
+                       <strong>Nivel 1 - Fundamentos (2 semanas)</strong><br>
+                       • Conceptos básicos<br>
+                       • Terminología esencial<br><br>
+                       <strong>Nivel 2 - Intermedio (3 semanas)</strong><br>
+                       • Aplicaciones prácticas<br>
+                       • Proyectos guiados<br><br>
+                       <strong>Nivel 3 - Avanzado (4 semanas)</strong><br>
+                       • Casos complejos<br>
+                       • Proyecto final`,
+                       
+                ejercicio: `<strong>💡 Ejercicio Práctico</strong><br><br>
+                           <strong>Enunciado:</strong> Resuelve el siguiente problema aplicando los conceptos vistos.<br><br>
+                           <strong>Datos:</strong> Variables y condiciones del ejercicio<br><br>
+                           <strong>Pista:</strong> Comienza identificando el tipo de problema y los pasos necesarios.`,
+                           
+                tip: `<strong>⚡ Tips Personalizados</strong><br><br>
+                     <strong>Tip 1:</strong> Organiza tu tiempo usando la técnica Pomodoro<br>
+                     <strong>Tip 2:</strong> Practica todos los días, aunque sea 30 minutos<br>
+                     <strong>Tip 3:</strong> Forma grupos de estudio con compañeros<br>
+                     <strong>Tip 4:</strong> Aprovecha las tutorías y recursos de la universidad`
+            };
+
+            return responses[type] || `He procesado tu consulta sobre: <strong>${message}</strong><br><br>
+                   Conecta el webhook de N8N para obtener respuestas personalizadas con IA real. 
+                   Por ahora estoy en modo demostración. 😊`;
+        }
+    </script>
+</body>
+</html>
